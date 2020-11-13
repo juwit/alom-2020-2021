@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>ALOM - Messaging</title>
+
+		<meta name="description" content="ALOM - Messaging">
+		<meta name="author" content="Julien WITTOUCK <julien@codeka.io>">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="../css/reveal.css">
+		<link rel="stylesheet" href="../css/theme/white.css" id="theme">
+
+		<link rel="stylesheet" href="../css/miage-lille.css"/>
+
+		<link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+				<section>
+					<h1>ALOM</h1>
+					<h2><i class="em em-incoming_envelope"></i> Messaging</h2>
+				</section>
+
+				<section>
+					<h2>UBER</h2>
+					<img src="images/Microservice-Architecture-Of-UBER.png" style="width: 50%"/>
+				</section>
+
+				<section>
+					<h2><img src="images/micro-service-poke.png" style="vertical-align: middle;"/> Un micro-service c'est :</h2>
+					<ul>
+						<li>
+							Un ou plusieurs canaux de communication
+							<ul>
+								<li>HTTP - REST/JSON</li>
+							</ul>
+						</li>
+						<li>Un ensemble de fonctionnalités du même domaine métier</li>
+						<li>Une source de données dédié</li>
+						<li>Un composant d'affichage</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Problématiques : </h2>
+					<p>Exécuter des traitements longs sans bloquer l'utilisateur <i class="em em-stopwatch"></i></p>
+					<p>Exécuter des traitements "schedulés" (cron)</p>
+					<ul>
+						<li>Envois de mails <i class="em em-email"></i></li>
+						<li>Impression de documents <i class="em em-printer"></i></li>
+					</ul>
+					<p>Répartition de charge de travail entre serveurs</p>
+				</section>
+
+				<section>
+					<h2>Traitements aynchrones</h2>
+					<p>Modèle : Envoi de messages <i class="em em-incoming_envelope"></i></p>
+					<p>Message : "donnée à traiter"</p>
+					<ul>
+						<li>
+							En-tête
+							<ul>
+								<li>Priorité</li>
+								<li>Expiration</li>
+								<li>Options de redistribution</li>
+								<li>Règles de routage</li>
+							</ul>
+						</li>
+						<li>Contenu (binaire ou texte)</li>
+					</ul>
+				</section>
+
+				<section class="stack">
+					<section>
+						<h2>Traitements aynchrones</h2>
+						<p>Mécanisme de "listener"</p>
+						<img src="images/listener.png"/>
+						<p>Opérations send/receive transactionnelles</p>
+					</section>
+					<section>
+						<h2>Broker</h2>
+						<p>Courtier : Programme intermédiaire entre un client et un serveur</p>
+						<h3>Message Broker</h3>
+						<ul>
+							<li>Gestion des queues/topic</li>
+							<li>Gère physiquement les données des messages (persistance)</li>
+							<li>Permet aux clients de s'abonner</li>
+							<li>Transmission des messages aux abonnés</li>
+						</ul>
+					</section>
+				</section>
+				<section class="stack">
+					<section>
+						<h2>JMS <small>Java Message Service</small></h2>
+						<h3>Queue : File FIFO</h3>
+						<p>Les messages sont stockés jusqu'a consommation ou expiration</p>
+						<p>Les messages sont distribués dans l'ordre</p>
+						<img src="images/queue.png"/>
+					</section>
+					<section>
+						<h2>JMS</h2>
+						<h3>Topic : Broadcast</h3>
+						<p>Les messages sont transmis à tous les abonnés présent au moment de la réception</p>
+						<img src="images/topic.png"/>
+					</section>
+				</section>
+
+				<section class="stack">
+					<section>
+						<h2>AMQP <small>Advanced Message Queuing Protocol</small></h2>
+						<p>
+							Un <i>Producer</i> envoie des messages à un <i>Exchange</i>.
+							L'<i>Exchange</i> route les messages vers les <i>Queue</i>.
+							Un <i>Consumer</i> s'abonne à une <i>Queue</i>.
+						</p>
+						<img src="images/amqp.png"/>
+					</section>
+					<section>
+						<h2>AMQP</h2>
+						<h3>fanout</h3>
+						<p>
+							Les <i>Exchange</i> de type <i>fanout</i> routent les messages à <b>toutes</b> les <i>Queue</i> bindées
+						</p>
+						<img src="images/amqp-fanout.png"/>
+					</section>
+					<section>
+						<h2>AMQP</h2>
+						<h3>direct</h3>
+						<p>
+							Les <i>Exchange</i> et les <i>Queue</i> sont bindées avec une <i>routing_key</i>
+							L'<i>Exchange</i> utilise la <i>routing_key</i> (exacte) pour décider dans quelle <i>Queue</i> envoyer un message.
+						</p>
+						<img src="images/amqp-direct.png"/>
+					</section>
+					<section>
+						<h2>AMQP</h2>
+						<h3>topic</h3>
+						<p>
+							Les <i>Exchange</i> et les <i>Queue</i> sont bindées avec une <i>routing_key</i>
+							L'<i>Exchange</i> utilise la <i>routing_key</i> (patterns */#) pour décider dans quelle <i>Queue</i> envoyer un message.
+						</p>
+						<img src="images/amqp-topic.png"/>
+					</section>
+				</section>
+
+				<section class="stack">
+					<section>
+						<h2><a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/toc.html">Patterns</a></h2>
+						<h3><a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageRouter.html">Message router</a></h3>
+						<img src="images/message-router.gif"/>
+					</section>
+					<section>
+						<h2><a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/toc.html">Patterns</a></h2>
+						<h3><a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/DeadLetterChannel.html">Dead Letter Channel</a></h3>
+						<img src="images/dead-letter.gif"/>
+					</section>
+					<section>
+						<h2><a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/toc.html">Patterns</a></h2>
+						<h3><a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageExpiration.html">Message Expiration</a></h3>
+						<img src="images/message-expiration.gif"/>
+					</section>
+					<section>
+						<h2><a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/toc.html">Patterns</a></h2>
+						<h3><a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/RequestReply.html">Request-Reply</a></h3>
+						<img src="images/request-reply.gif"/>
+					</section>
+					<section>
+						<h2><a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/toc.html">Patterns</a></h2>
+						<h3><a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/WireTap.html">Wire-Tap</a>/<a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/Detour.html">Detour</a></h3>
+						<img src="images/wire-tap.gif"/>
+						<img src="images/detour.gif"/>
+					</section>
+				</section>
+
+				<section class="stack">
+					<section>
+						<h2>Produits implémentant AMQP</h2>
+						<div>
+							<img src="images/activemq_logo.png"/>
+							<img src="images/rabbitmq-logo.png"/>
+						</div>
+					</section>
+					<section>
+						<h1>Avec Spring</h1>
+						<h2><a href="https://spring.io/projects/spring-amqp">Spring AMQP</a></h2>
+						<ul>
+							<li><code>RabbitTemplate</code> pour envoyer et recevoir des messages</li>
+							<li><code>RabbitAdmin</code> pour créer des Exchanges/Queues/Bindings</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<h2>TP</h2>
+					<img src="../images/leonidas.png"/>
+					<p>
+						<a href="./11-tp-messaging.html">Messaging <i class="em em-incoming_envelope"></i> & Scheduling tasks <i class="em em-alarm_clock"></i></a>
+					</p>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="../js/reveal.js"></script>
+
+		<script>
+			Reveal.initialize({
+				controls: true,
+                controlsBackArrows: 'faded',
+				progress: true,
+				history: true,
+				center: true,
+				transition: 'slide'
+			});
+
+		</script>
+
+		<aside class="miage_aside_logo"></aside>
+
+    </body>
+</html>
